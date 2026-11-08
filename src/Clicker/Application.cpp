@@ -56,7 +56,7 @@ void Application::draw() {
 void Application::initRes() {
   this->m_textures.loadResource(
       "main",
-      "assets/textures/128x128/Circular/Brick/Circular_Brick_01-128x128.png");
+      "assets/textures/128x128/Circular/Brick/Circular_Brick_02-128x128.png");
 }
 
 void Application::run() {
