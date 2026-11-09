@@ -10,8 +10,10 @@ private:
   float m_speed = 150.0f;
 
 public:
-  using sf::CircleShape::CircleShape;
-  void move(sf::Time dt, float Window);
-  const sf::CircleShape &getShape() const;
+  explicit Circle(float r = 0.0f);
+  void move(sf::Time dt);
+  void reverse();
+  void setSpeed(float speed);
+  const float getSpeed();
 };
 } // namespace Clicker::Entity

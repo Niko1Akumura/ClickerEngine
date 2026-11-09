@@ -4,7 +4,6 @@
 
 int main() {
   std::unique_ptr<Clicker::Application> app =
-      std::make_unique<Clicker::Application>(sf::Vector2u({800, 600}), "SFML",
-                                             200.0f);
+      std::make_unique<Clicker::Application>(sf::Vector2u({800, 600}), "SFML");
   app->run();
 }
