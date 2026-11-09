@@ -5,15 +5,12 @@
 #include <SFML/System/Time.hpp>
 
 namespace Clicker::Entity {
-class Circle {
+class Circle : public sf::CircleShape {
 private:
-  sf::CircleShape m_shape;
   float m_speed = 150.0f;
 
 public:
-  Circle(float r);
-
-  void setTexture(const sf::Texture *texture);
+  using sf::CircleShape::CircleShape;
   void move(sf::Time dt, float Window);
   const sf::CircleShape &getShape() const;
 };

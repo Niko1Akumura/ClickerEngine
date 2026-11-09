@@ -17,6 +17,7 @@ Application::Application(sf::Vector2u screenSize, const std::string &title,
     : m_window(sf::VideoMode(screenSize), title), m_circle(a) {
   this->initRes();
   this->m_circle.setTexture(&this->m_textures.get("main"));
+  this->m_circle.setPosition(sf::Vector2f({200, 100}));
 }
 
 void Application::handlerEvent() {
@@ -32,7 +33,7 @@ void Application::update(sf::Time dt) {
 
 void Application::draw() {
   this->m_window.clear();
-  this->m_window.draw(this->m_circle.getShape());
+  this->m_window.draw(this->m_circle);
   this->m_window.display();
 }
 
