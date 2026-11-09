@@ -29,6 +29,7 @@ void Application::handlerEvent() {
 
 void Application::update(sf::Time dt) {
   this->m_circle.move(dt, this->m_window.getSize().x);
+  std::cout << std::to_string(this->m_circle.getPosition());
 }
 
 void Application::draw() {
