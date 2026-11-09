@@ -11,7 +11,8 @@ private:
   std::unordered_map<Identifier, std::unique_ptr<Resource>> m_resources;
 
 public:
-  void loadResource(const Identifier &id, const std::string &filePath) {
+  void loadResource(const Identifier &id, const std::string &filePath,
+                    bool smooth = false) {
     auto resource = std::make_unique<Resource>();
     if constexpr (requires { resource->loadFromFile(filePath); }) {
       if (!resource->loadFromFile(filePath)) {
@@ -28,6 +29,11 @@ public:
     if (this->has(id)) {
       throw std::runtime_error("Resource already exists");
     }
+
+    if constexpr (requires { resource->setSmooth(smooth); }) {
+      resource->setSmooth(smooth);
+    }
+
     m_resources.emplace(id, std::move(resource));
   }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Clicker/Entity/Circle.hpp>
 #include <Clicker/ResourceManager/Resources.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -12,13 +13,11 @@ class Application {
 private:
   sf::RenderWindow m_window;
   sf::Clock m_clock;
-  sf::CircleShape m_circle;
-  float m_speed = 150.0f;
 
   Resource::Fonts m_fonts;
   Resource::Textures m_textures;
   Resource::Sounds m_sounds;
-
+  Entity::Circle m_circle;
   void handlerEvent();
   void update(sf::Time dt);
   void draw();
