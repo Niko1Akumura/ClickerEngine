@@ -1,10 +1,9 @@
 #pragma once
 
-#include <Clicker/Entity/Circle.hpp>
+#include "Clicker/Scene/IScene.hpp"
 #include <Clicker/ResourceManager/Resources.hpp>
+#include <Clicker/Scene/PongScene.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Shape.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
@@ -20,20 +19,16 @@ private:
   Resource::Textures m_textures;
   Resource::Sounds m_sounds;
 
-  sf::RectangleShape m_paddle;
-  sf::RectangleShape m_paddleL;
-
-  Entity::Circle m_circle;
+  std::unique_ptr<Clicker::Scene::IScene> m_scene;
 
   void handlerEvent();
   void update(sf::Time dt);
   void draw();
 
   void initRes();
-  void initEntity();
+  void initScene();
 
 public:
-  int count = 0;
   Application(sf::Vector2u screenSize, const std::string &title);
   void run();
 };

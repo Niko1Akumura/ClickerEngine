@@ -1,4 +1,5 @@
-#include "Clicker/Entity/Circle.hpp"
+#include "Clicker/ResourceManager/Resources.hpp"
+#include "Clicker/Scene/PongScene.hpp"
 #include <Clicker/Application.hpp>
 #include <Clicker/Collision/Collision.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -11,13 +12,14 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
+#include <memory>
 #include <string>
 namespace Clicker {
 
 Application::Application(sf::Vector2u screenSize, const std::string &title)
     : m_window(sf::VideoMode(screenSize), title) {
   this->initRes();
-  this->initEntity();
+  this->initScene();
 }
 
 void Application::handlerEvent() {
@@ -28,27 +30,16 @@ void Application::handlerEvent() {
 }
 
 void Application::update(sf::Time dt) {
-  bool hitRight =
-      Collision::Collision::hasCollisoin(this->m_circle, this->m_paddle);
-  bool hitLeft =
-      Collision::Collision::hasCollisoin(this->m_circle, this->m_paddleL);
-
-  if (hitRight || hitLeft) {
-    count++;
-    if (count % 2 == 0 && count <= 6) {
-      this->m_circle.setSpeed(this->m_circle.getSpeed() * 1.5f);
-    }
-    this->m_circle.reverse();
+  if (this->m_scene) {
+    this->m_scene->update(dt);
   }
-
-  this->m_circle.move(dt);
 }
 
 void Application::draw() {
   this->m_window.clear();
-  this->m_window.draw(this->m_circle);
-  this->m_window.draw(this->m_paddle);
-  this->m_window.draw(this->m_paddleL);
+  if (this->m_scene) {
+    this->m_scene->render(this->m_window);
+  }
   this->m_window.display();
 }
 
@@ -60,25 +51,13 @@ void Application::initRes() {
   this->m_textures.loadResource(
       "paddle",
       "assets/textures/128x128/Square/Wood/Square_Wood_01-128x128.png", true);
+  this->m_sounds.loadResource("pong_coll", "assets/sounds/pong/pong_coll.mp3");
+  this->m_fonts.loadResource("main", "assets/fonts/DejaVuSans-Bold.ttf");
 }
 
-void Application::initEntity() {
-  this->m_circle = Entity::Circle(20.0f);
-  this->m_circle.setTexture(&this->m_textures.get("main"));
-  this->m_circle.setPosition(sf::Vector2f(
-      {this->m_circle.getRadius() * 2.0f, this->m_window.getSize().y / 2.0f}));
-
-  this->m_paddle = sf::RectangleShape(sf::Vector2f({10.0f, 200.0f}));
-  this->m_paddle.setOrigin(this->m_paddle.getSize() / 2.0f);
-  this->m_paddle.setPosition(
-      sf::Vector2f({this->m_window.getSize().x - this->m_paddle.getSize().x,
-                    this->m_window.getSize().y / 2.f}));
-  this->m_paddle.setTexture(&this->m_textures.get("paddle"));
-  this->m_paddleL = sf::RectangleShape(sf::Vector2f({10.0f, 200.0f}));
-  this->m_paddleL.setOrigin(this->m_paddle.getSize() / 2.0f);
-  this->m_paddleL.setPosition(sf::Vector2f(
-      {this->m_paddle.getSize().x, this->m_window.getSize().y / 2.f}));
-  this->m_paddleL.setTexture(&this->m_textures.get("paddle"));
+void Application::initScene() {
+  this->m_scene = std::make_unique<Scene::PongScene>(Resource::Context{
+      this->m_fonts, this->m_textures, this->m_sounds, this->m_window});
 }
 
 void Application::run() {
