@@ -1,7 +1,6 @@
 #include "Clicker/ResourceManager/Resources.hpp"
 #include "Clicker/Scene/PongScene.hpp"
 #include <Clicker/Application.hpp>
-#include <Clicker/Collision/Collision.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>

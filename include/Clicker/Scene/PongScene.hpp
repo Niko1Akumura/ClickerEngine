@@ -2,6 +2,7 @@
 
 #include "Clicker/ResourceManager/Resources.hpp"
 #include <Clicker/Entity/Circle.hpp>
+#include <Clicker/Physics/CollisionSystem.hpp>
 #include <Clicker/Scene/IScene.hpp>
 #include <Clicker/UI/Label.hpp>
 #include <SFML/Audio/Sound.hpp>
@@ -18,13 +19,19 @@ private:
   sf::RectangleShape m_paddleL;
   Entity::Circle m_circle;
 
+  Physics::CollisionSystem m_physicsSystem;
+  Physics::Collider m_ballCollider;
+  Physics::Collider m_paddleCollider;
+  Physics::Collider m_paddleLCollider;
+
   std::optional<sf::Sound> m_sound;
-
   std::optional<UI::Label> m_label;
-  void initEntity();
 
-  int count = 0;
-  int score = 0;
+  void initEntity();
+  void updateColliders();
+
+  int m_count = 0;
+  int m_score = 0;
 
 public:
   explicit PongScene(Resource::Context context);

@@ -1,6 +1,5 @@
 #include "Clicker/Scene/PongScene.hpp"
 #include "Clicker/ResourceManager/Resources.hpp"
-#include <Clicker/Collision/Collision.hpp>
 #include <Clicker/Scene/IScene.hpp>
 #include <SFML/Audio/Sound.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -13,30 +12,47 @@ PongScene::PongScene(Resource::Context context) : IScene(context) {
 }
 
 void PongScene::update(sf::Time dt) {
-  bool hitRight =
-      Collision::Collision::hasCollisoin(this->m_circle, this->m_paddle);
-  bool hitLeft =
-      Collision::Collision::hasCollisoin(this->m_circle, this->m_paddleL);
-
-  if (hitRight || hitLeft) {
-    if (this->m_sound) {
-      this->m_sound->play();
-    }
-    this->score++;
-    count++;
-    if (this->m_label) {
-      this->m_label->setText("Score: " + std::to_string(this->score));
-    }
-
-    if (count % 2 == 0 && count <= 6) {
-      this->m_circle.setSpeed(this->m_circle.getSpeed() * 1.5f);
-    }
-    this->m_circle.reverse();
-  }
-
+  // 1. Двигаем шар
   this->m_circle.move(dt);
-}
 
+  // 2. Синхронизируем коллайдеры с новыми координатами
+  this->updateColliders();
+
+  // 3. Прогоняем Broad Phase + Narrow Phase
+  auto collisions = this->m_physicsSystem.update();
+
+  for (const auto &pair : collisions) {
+    // Проверяем, участвует ли шар в столкновении
+    if (pair.first == &this->m_ballCollider ||
+        pair.second == &this->m_ballCollider) {
+
+      // Выталкиваем шар из ракетки, чтобы он не застрял внутри
+      // Направление нормали всегда идёт от first к second
+      sf::Vector2f resolveDir = (pair.first == &this->m_ballCollider)
+                                    ? -pair.manifold.normal
+                                    : pair.manifold.normal;
+
+      this->m_circle.setPosition(this->m_circle.getPosition() +
+                                 resolveDir * pair.manifold.penetration);
+
+      // Реакция: разворот скорости и звук
+      this->m_score++;
+      if (this->m_label) {
+        this->m_label->setText("Score: " + std::to_string(this->m_score));
+      }
+
+      if (this->m_score % 2 == 0 && this->m_score <= 6) {
+        this->m_circle.setSpeed(this->m_circle.getSpeed() * 1.5f);
+      }
+
+      this->m_circle.reverse();
+      this->m_sound->play();
+
+      // Синхронизируем коллайдер после выталкивания
+      this->updateColliders();
+    }
+  }
+}
 void PongScene::handleEvent(sf::RenderWindow &window) {}
 void PongScene::render(sf::RenderTarget &targer) {
   targer.draw(this->m_circle);
@@ -84,6 +100,40 @@ void PongScene::initEntity() {
       sf::Vector2f({this->m_paddle.getSize().x,
                     this->m_context.m_window.getSize().y / 2.f}));
   this->m_paddleL.setTexture(&this->m_context.m_textures.get("paddle"));
+  // Physics
+  m_ballCollider = Physics::Collider(
+      Physics::CircleShape{m_circle.getPosition(), m_circle.getRadius()},
+      Physics::CollisionType::Solid, Physics::Layer::Player,
+      Physics::Layer::World);
+
+  auto paddleBox = [](const sf::RectangleShape &rect) {
+    return Physics::BoxShape{rect.getGlobalBounds()};
+  };
+
+  m_paddleCollider =
+      Physics::Collider(paddleBox(m_paddle), Physics::CollisionType::Solid,
+                        Physics::Layer::World, Physics::Layer::Player);
+
+  m_paddleLCollider =
+      Physics::Collider(paddleBox(m_paddleL), Physics::CollisionType::Solid,
+                        Physics::Layer::World, Physics::Layer::Player);
+
+  m_physicsSystem.clear();
+  m_physicsSystem.addCollider(&m_ballCollider);
+  m_physicsSystem.addCollider(&m_paddleCollider);
+  m_physicsSystem.addCollider(&m_paddleLCollider);
+}
+
+void PongScene::updateColliders() {
+  sf::Vector2f circleCenter =
+      m_circle.getPosition() +
+      sf::Vector2f(m_circle.getRadius(), m_circle.getRadius());
+  // updateColliders():
+  m_ballCollider.shape =
+      Physics::CircleShape{m_circle.getPosition(), m_circle.getRadius()};
+  // Обновляем AABB ракеток
+  m_paddleCollider.shape = Physics::BoxShape{m_paddle.getGlobalBounds()};
+  m_paddleLCollider.shape = Physics::BoxShape{m_paddleL.getGlobalBounds()};
 }
 
 } // namespace Clicker::Scene
