@@ -2,7 +2,6 @@
 
 #include "Clicker/Scene/IScene.hpp"
 #include <Clicker/ResourceManager/Resources.hpp>
-#include <Clicker/Scene/PongScene.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Shape.hpp>
 #include <SFML/System/Clock.hpp>

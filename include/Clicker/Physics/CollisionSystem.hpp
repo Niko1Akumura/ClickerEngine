@@ -3,6 +3,7 @@
 #include "Clicker/Physics/Common.hpp"
 #include <Clicker/Physics/Collider.hpp>
 #include <Clicker/Physics/NarrowPhase.hpp>
+#include <memory>
 #include <vector>
 
 namespace Clicker::Physics {
@@ -24,6 +25,38 @@ public:
   }
 
   void clear() { this->m_colliders.clear(); }
+
+  template <typename EntityContainer>
+  [[nodiscard]] std::vector<CollisionPair> update(EntityContainer &entities) {
+    this->m_colliders.clear();
+    this->m_colliders.reserve(entities.size());
+
+    for (auto &entityPtr : entities) {
+      if (entityPtr && entityPtr->isAlive && entityPtr->collider.has_value()) {
+        entityPtr->collider->owner = entityPtr.get();
+        this->m_colliders.push_back(&(*entityPtr->collider));
+      }
+    }
+
+    auto collisions = this->update();
+
+    using EntityType = typename EntityContainer::value_type::element_type;
+
+    for (const auto &pair : collisions) {
+      if (pair.first->owner && pair.second->owner) {
+        auto *entityA = static_cast<EntityType *>(pair.first->owner);
+        auto *entityB = static_cast<EntityType *>(pair.second->owner);
+
+        entityA->onCollision(*entityB, pair.manifold);
+
+        Manifold inverted = pair.manifold;
+        inverted.normal = -inverted.normal;
+        entityB->onCollision(*entityA, inverted);
+      }
+    }
+
+    return collisions;
+  }
 
   [[nodiscard]] std::vector<CollisionPair> update() {
     std::vector<CollisionPair> collisions;

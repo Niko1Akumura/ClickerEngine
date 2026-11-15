@@ -5,6 +5,11 @@
 #include <SFML/System/Vector2.hpp>
 #include <variant>
 
+namespace Clicker {
+
+class Entity;
+}
+
 namespace Clicker::Physics {
 struct BoxShape {
   sf::FloatRect rect;
@@ -23,6 +28,8 @@ public:
   CollisionType type{CollisionType::Solid};
   Layer layer{Layer::Default};
   Layer mask{Layer::All};
+
+  Entity *owner{nullptr};
 
   Collider() = default;
 

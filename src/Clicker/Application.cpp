@@ -1,6 +1,6 @@
 #include "Clicker/ResourceManager/Resources.hpp"
-#include "Clicker/Scene/PongScene.hpp"
 #include <Clicker/Application.hpp>
+#include <Clicker/Scene/TestScene.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
@@ -55,7 +55,7 @@ void Application::initRes() {
 }
 
 void Application::initScene() {
-  this->m_scene = std::make_unique<Scene::PongScene>(Resource::Context{
+  this->m_scene = std::make_unique<Scene::TestSceene>(Resource::Context{
       this->m_fonts, this->m_textures, this->m_sounds, this->m_window});
 }
 
